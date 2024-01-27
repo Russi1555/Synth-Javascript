@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synth JS - Russi1555</title>
+    <link rel="stylesheet" href="estilo.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+</head>
+
+<body>
+    <div class="chart-container" style="position: fixed; top: 1vh; left: 1vh; width: 30vw; height: 30vh; border: 0px solid white;">
+        <canvas id="grafico_final"></canvas>
+    </div>
+    <div class="area_keyboard">
+        <div class="keyboard"></div>
+        <button class="key" onmousedown="nota('C')" onmouseup="nota_release('C')" onmouseleave="nota_release('C')">C</button>
+        <button class="key" onmousedown="nota('D')" onmouseup="nota_release('D')" onmouseleave="nota_release('D')">D</button>
+        <button class="key" onmousedown="nota('E')" onmouseup="nota_release('E')" onmouseleave="nota_release('E')">E</button>
+        <button class="key" onmousedown="nota('F')" onmouseup="nota_release('F')" onmouseleave="nota_release('F')">F</button>
+        <button class="key" onmousedown="nota('G')" onmouseup="nota_release('G')" onmouseleave="nota_release('G')">G</button>
+        <button class="key" onmousedown="nota('A')" onmouseup="nota_release('A')" onmouseleave="nota_release('A')">A</button>
+        <button class="key" onmousedown="nota('B')" onmouseup="nota_release('B')" onmouseleave="nota_release('B')">B</button>
+    </div>
+
+    <div class="settingsBar">
+        <div class="left">
+            <span>Volume: </span>
+            <input
+                type="range"
+                min="0.0"
+                max="1.0"
+                step="0.01"
+                value="0.5"
+                list="volumes"
+                name="volume" />
+            <datalist id="volumes">
+                <option value="0.0" label="Mute"></option>
+                <option value="0.5" label="50%"></option>
+                <option value="1.0" label="100%"></option>
+            </datalist>
+        </div>
+    </div>
+
+    <div class="oitava_control">
+        <span>Oitava: </span>
+        <input type="number" id="oitavaInput" value="3" step="1" min="0" max="8" onchange="changeOctave()">
+    </div>
+
+    <div class="right">
+        <span>Current waveform: </span>
+        <select name="waveform">
+            <option value="sine" selected>Sine</option>
+            <option value="square">Square</option>
+            <option value="sawtooth">Sawtooth</option>
+            <option value="triangle">Triangle</option>
+            <option value="custom">Custom</option>
+        </select>
+    </div>
+
+
+    <script src = main.js></script>
+    <script>
+        let x_vals = [];
+        let y_vals = [];
+    
+        for (let i = 0; i <= 360; i++) {
+            let rad = i * (Math.PI / 180);
+            x_vals.push(i);
+            y_vals.push(Math.sin(rad));
+        }
+    
+        new Chart("grafico_final", {
+            type: "line",
+            data: {
+                labels: x_vals,
+                datasets: [{
+                    fill: true,
+                    borderColor: "rgba(0, 0, 255, 1.0)",
+                    borderWidth:2,
+                    data: y_vals
+                }]
+            },
+            options: {
+        legend: { display: false },
+        scales: {
+            yAxes: [{
+                ticks: {
+                    stepSize: 0.5, // Set the fixed tick value
+                    suggestedMin: -1.5, // Suggested minimum value
+                    suggestedMax: 1.5, // Suggested maximum value
+                },
+                display: false
+            }],
+            xAxes: [{
+                display: false
+            }]
+        }
+    }
+        });
+    </script>
+    
+    </script>
+    
+
+</body>
+</html>
