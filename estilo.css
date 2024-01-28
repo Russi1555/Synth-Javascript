@@ -65,17 +65,20 @@ body {
   color: #fff;
 }
 
+
+
 .settingsBar,
 .oitava_control,
+.distorcao,
 .right {
   padding-top: 8px;
   font: 14px "Open Sans", "Lucida Grande", "Arial", sans-serif;
   color: white;
-  position: fixed;
+  position: absolute;
   bottom: 10vh;
   height: 30px;
   flex: 1;
-  max-width: 33vw;
+  max-width: 25vw;
   margin-left: 1vw;
 }
 
@@ -84,7 +87,11 @@ body {
 }
 
 .oitava_control {
-  left: 33vw;
+  left: 25vw;
+}
+
+.distorcao {
+  left: 50vw
 }
 
 .right {

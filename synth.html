@@ -10,9 +10,10 @@
 </head>
 
 <body>
-    <div class="chart-container" style="position: fixed; top: 1vh; left: 1vh; width: 30vw; height: 30vh; border: 0px solid white;">
-        <canvas id="grafico_final"></canvas>
+    <div class="chart-container" style="position: fixed; top: 1vh; left: 1vh; width: 40vw; height: 40vh; border: 0px solid white;">
+        <canvas id="grafico_final" width="600" height="400"></canvas>
     </div>
+    
     <div class="area_keyboard">
         <div class="keyboard"></div>
         <button class="key" onmousedown="nota('C')" onmouseup="nota_release('C')" onmouseleave="nota_release('C')">C</button>
@@ -45,7 +46,12 @@
 
     <div class="oitava_control">
         <span>Oitava: </span>
-        <input type="number" id="oitavaInput" value="3" step="1" min="0" max="8" onchange="changeOctave()">
+        <input type="number" id="oitavaInput" value="3" step="1" min="0" max="8">
+    </div>
+
+    <div class="distorcao">
+        <span>Distorção </span>
+        <input type="number" name="distInput" value="0" step="10" min="0" max="1000">
     </div>
 
     <div class="right">
@@ -61,47 +67,8 @@
 
 
     <script src = main.js></script>
-    <script>
-        let x_vals = [];
-        let y_vals = [];
-    
-        for (let i = 0; i <= 360; i++) {
-            let rad = i * (Math.PI / 180);
-            x_vals.push(i);
-            y_vals.push(Math.sin(rad));
-        }
-    
-        new Chart("grafico_final", {
-            type: "line",
-            data: {
-                labels: x_vals,
-                datasets: [{
-                    fill: true,
-                    borderColor: "rgba(0, 0, 255, 1.0)",
-                    borderWidth:2,
-                    data: y_vals
-                }]
-            },
-            options: {
-        legend: { display: false },
-        scales: {
-            yAxes: [{
-                ticks: {
-                    stepSize: 0.5, // Set the fixed tick value
-                    suggestedMin: -1.5, // Suggested minimum value
-                    suggestedMax: 1.5, // Suggested maximum value
-                },
-                display: false
-            }],
-            xAxes: [{
-                display: false
-            }]
-        }
-    }
-        });
-    </script>
-    
-    </script>
+
+
     
 
 </body>
