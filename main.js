@@ -187,8 +187,8 @@ function changeDistortion(event) {
 }
 
 
-function nota(note) {
-    const oitava = parseInt(oitavaInput.value) || 0;
+function nota(note, mod_oitava = 0) {
+    const oitava = parseInt(oitavaInput.value) + mod_oitava || mod_oitava;
 
     if (!Osc_ativos[oitava][note]) {
         Osc_ativos[oitava][note] = play_nota(oitava, note);
