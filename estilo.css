@@ -69,7 +69,8 @@ body {
 
 .settingsBar,
 .oitava_control,
-.distorcao,
+.distorcao_control,
+.filtro_control,
 .right {
   padding-top: 8px;
   font: 14px "Open Sans", "Lucida Grande", "Arial", sans-serif;
@@ -87,11 +88,15 @@ body {
 }
 
 .oitava_control {
-  left: 25vw;
+  left: 20vw;
 }
 
-.distorcao {
-  left: 50vw
+.distorcao_control {
+  left: 40vw;
+}
+
+.filtro_control{
+  left: 60vw;
 }
 
 .right {

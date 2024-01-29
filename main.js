@@ -4,41 +4,57 @@ function makeDistortionCurve(amount) {
     const samples = 44100;
     const curve = new Float32Array(samples);
     const deg = Math.PI / 180;
-
-    for (let i = 0; i < samples; ++i) {
-        const x = (i * 2) / samples - 1;
-        curve[i] = Math.sin(Math.PI * amount * x) * 0.75; // Experiment with this expression
+    if(amount != 0){
+        for (let i = 0; i < samples; ++i) {
+            const x = (i * 2) / samples - 1;
+            curve[i] = Math.sin(Math.PI * amount * x) * 0.75; // Experiment with this expression
+        }
+    }
+    else{
+        
     }
 
     return curve;
 }
 
-const Nodo_Distortion = audioContext.createWaveShaper(); //Nodo de distorção não linear
-Nodo_Distortion.curve = makeDistortionCurve(1);
-Nodo_Distortion.oversample = '4x';
-const Nodo_ganho = audioContext.createGain(); //Nodo de controle de ganho
-const biquadFilter = audioContext.createBiquadFilter(); //Nodo de filtro
 
+const Nodo_Ganho = audioContext.createGain(); //Nodo de controle de ganho
+const Nodo_Distortion = audioContext.createWaveShaper(); //Nodo de distorção não linear
+const Nodo_Filtro = audioContext.createBiquadFilter(); //Nodo de filtro
+const Nodo_Analyser = audioContext.createAnalyser(); // Nodo de análise, entra e sai sem alteração
 //Nodo que aplica "Linear Convolution" https://en.wikipedia.org/wiki/Convolution#Visual_explanation Comum pra efeito de reverb
 const convolver = audioContext.createConvolver(); 
 
+let Nodos = [];
+Nodos.push(Nodo_Distortion);
+Nodos.push(Nodo_Filtro);
+Nodos.push(Nodo_Ganho)
+
+
+//CONFIGS INICIAIS DO FILTRO
+Nodo_Filtro.type = "lowshelf";
+//Nodo_Filtro.frequency.setValueAtTime(0,audioContext.currentTime);
+//Nodo_Filtro.gain.setTargetAtTime(25,audioContext.currentTime);
 
 const Osc_ativos = [];
 
 
-Nodo_ganho.connect(Nodo_Distortion);
 
-const analyser = audioContext.createAnalyser(); // Nodo de análise, entra e sai sem alteração
-analyser.fftSize = 2048;
-analyser.minDecibels = -90;
-analyser.maxDecibels = -10;
-const bufferLength = analyser.frequencyBinCount;
+//CONFIGS DO ANALISADOR
+Nodo_Analyser.fftSize = 2048;
+Nodo_Analyser.minDecibels = -90;
+Nodo_Analyser.maxDecibels = -10;
+const bufferLength = Nodo_Analyser.frequencyBinCount;
 const dataArray = new Uint8Array(bufferLength);
-analyser.getByteTimeDomainData(dataArray);
-analyser.smoothingTimeConstant = 0.85;
-// Connect the source to be analysed
-Nodo_Distortion.connect(analyser);
-analyser.connect(audioContext.destination);
+Nodo_Analyser.getByteTimeDomainData(dataArray);
+Nodo_Analyser.smoothingTimeConstant = 0.85;
+
+// Connect the source to be analysed (oscilador/key -> distorcao -> filtro -> ganho -> analisador -> destination) futuramente a ordem podera ser alterada pelo user
+
+Nodo_Distortion.connect(Nodo_Filtro);
+Nodo_Filtro.connect(Nodo_Ganho);
+Nodo_Ganho.connect(Nodo_Analyser);
+Nodo_Analyser.connect(audioContext.destination);
 
 // Get a canvas defined with ID
 const canvas = document.getElementById("grafico_final");
@@ -49,40 +65,70 @@ const volumeControl = document.querySelector("input[name='volume']");
 const DistortionControl = document.querySelector("input[name='distInput']");
 const oitavaInput = document.getElementById("oitavaInput");
 
+let frameCount = 0;
+const framesToSkip = 3; // Adjust this value to control the speed
+
 function draw() {
-    requestAnimationFrame(draw);
-  
-    analyser.getByteTimeDomainData(dataArray);
-  
-    canvasCtx.fillStyle = "rgb(200 200 200)";
-    canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
-  
-    canvasCtx.lineWidth = 2;
-    canvasCtx.strokeStyle = "rgb(0 0 200)";
-  
-    canvasCtx.beginPath();
-  
-    const sliceWidth = (canvas.width * 1.0) / bufferLength;
-    let x = 0;
-  
-    for (let i = 0; i < bufferLength; i++) {
-      const v = dataArray[i] / 128.0;
-      const y = (v * canvas.height) / 2;
-  
-      if (i === 0) {
-        canvasCtx.moveTo(x, y);
-      } else {
-        canvasCtx.lineTo(x, y);
-      }
-  
-      x += sliceWidth;
+    // Increment the frame counter
+    frameCount++;
+
+    // Check if it's time to update the display
+    if (frameCount >= framesToSkip) {
+        // Get time-domain data from the audio analyzer
+        Nodo_Analyser.getByteTimeDomainData(dataArray);
+
+        // Set the fill style for the canvas background
+        canvasCtx.fillStyle = "rgb(200 200 200)";
+
+        // Clear the entire canvas
+        canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Set the line width and stroke style for drawing the waveform
+        canvasCtx.lineWidth = 2;
+        canvasCtx.strokeStyle = "rgb(0 0 200)";
+
+        // Begin drawing a path on the canvas
+        canvasCtx.beginPath();
+
+        // Calculate the width of each "slice" in the canvas based on the buffer length
+        const sliceWidth = (canvas.width * 1.0) / bufferLength;
+        let x = 0;
+
+        // Loop through each data point in the time-domain data array
+        for (let i = 0; i < bufferLength; i++) {
+            // Normalize the data to the range [-1, 1]
+            const v = dataArray[i] / 128.0;
+
+            // Map the normalized value to the height of the canvas
+            const y = (v * canvas.height) / 2;
+
+            // Move to the starting point of the waveform
+            if (i === 0) {
+                canvasCtx.moveTo(x, y);
+            } else {
+                // Draw a line to the next point in the waveform
+                canvasCtx.lineTo(x, y);
+            }
+
+            // Increment the x-coordinate for the next slice
+            x += sliceWidth;
+        }
+
+        // Connect the last point in the waveform to the middle of the canvas
+        canvasCtx.lineTo(canvas.width, canvas.height / 2);
+
+        // Stroke the path, rendering the waveform on the canvas
+        canvasCtx.stroke();
+
+        // Reset the frame counter
+        frameCount = 0;
     }
+
+    // Request the next frame
+    requestAnimationFrame(draw);
+}
   
-    canvasCtx.lineTo(canvas.width, canvas.height / 2);
-    canvasCtx.stroke();
-  }
-  
-  draw();
+
   
 let noteFreq = [{}];
 
@@ -119,19 +165,22 @@ function setup() {
 
 function changeVolume(event) {
     const volumeValue = parseFloat(volumeControl.value);
-    Nodo_ganho.gain.value = volumeValue;
+    Nodo_Ganho.gain.value = volumeValue;
 }
 
 
 function changeDistortion(event) {
     const distortionValue = parseFloat(DistortionControl.value) | 0 ;
-
-    if (distortionValue <2) {
-        // If distortion value is 0, set a default curve with no distortion
-        Nodo_Distortion.curve = makeDistortionCurve(1); // Use a small non-zero value
-    } else {
-        Nodo_Distortion.curve = makeDistortionCurve(distortionValue);
+    if(distortionValue > 0){
+        Nodo_Distortion.curve = makeDistortionCurve(DistortionControl.value);
+        Nodo_Distortion.oversample = '4x';
     }
+    else {
+        Nodo_Distortion.curve = null;
+        Nodo_Distortion.oversample = "none";
+      }
+
+    
 
     console.log("mudou algo");
     console.log(distortionValue);
@@ -149,7 +198,7 @@ function nota(note) {
 
 function play_nota(oitava, note) {
     const osc = audioContext.createOscillator();
-    osc.connect(Nodo_ganho);
+    osc.connect(Nodo_Distortion);
     const type = wavePicker.options[wavePicker.selectedIndex].value;
     if (type === "custom") {
         osc.setPeriodicWave(customWaveform);
@@ -172,3 +221,4 @@ function nota_release(note) {
 
 setup();
 changeVolume(0);
+draw();
