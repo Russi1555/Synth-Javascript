@@ -25,11 +25,6 @@ const Nodo_Analyser = audioContext.createAnalyser(); // Nodo de análise, entra 
 //Nodo que aplica "Linear Convolution" https://en.wikipedia.org/wiki/Convolution#Visual_explanation Comum pra efeito de reverb
 const convolver = audioContext.createConvolver(); 
 
-let Nodos = [];
-Nodos.push(Nodo_Distortion);
-Nodos.push(Nodo_Filtro);
-Nodos.push(Nodo_Ganho)
-
 
 //CONFIGS INICIAIS DO FILTRO
 Nodo_Filtro.type = "lowshelf";
