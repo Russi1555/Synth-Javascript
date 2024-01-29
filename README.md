@@ -1,6 +1,9 @@
 # Synth-Javascrpit
 
 TODO:
+ - Formatar em OO
+ - Acrescentar teclas C#, D#, F#, G# e A#
  - Só da pra tocar uma oitava por vez -> extender teclas
- - Acrescentar algum efeito
- - Verificar se o que eu to fazendo não ta errado (importante)
+ - Aumentar opções de distorção
+ - Adicionar Reverb
+ - Adicionar Delay
