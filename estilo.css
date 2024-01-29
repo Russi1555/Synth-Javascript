@@ -112,7 +112,6 @@ body {
 
 .settingsBar,
 .oitava_control,
-.distorcao_control,
 .filtro_control,
 .right {
   padding-top: 8px;
@@ -134,10 +133,6 @@ body {
   left: 20vw;
 }
 
-.distorcao_control {
-  left: 40vw;
-}
-
 .filtro_control{
   left: 60vw;
 }
@@ -145,3 +140,27 @@ body {
 .right {
   right: 0;
 }
+.chart-container{
+  position: fixed; 
+  top: 1vh; 
+  left: 1vh; 
+  width: 40vw; 
+  height: 40vh; 
+  border: 0px solid white;
+}
+
+.distorcao_control{
+  padding-top: 8px;
+  font: 14px "Open Sans", "Lucida Grande", "Arial", sans-serif;
+  color: white;
+  position: absolute;
+  top : 43vh;
+  left: 1vh;
+  height: 30vh;
+  flex: 1;
+  width: 600px;
+  border: 2px solid purple;
+}
+
+
+

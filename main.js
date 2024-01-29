@@ -1,23 +1,5 @@
 const audioContext = new AudioContext();
 
-function makeDistortionCurve(amount) {
-    const samples = 44100;
-    const curve = new Float32Array(samples);
-    const deg = Math.PI / 180;
-    if(amount != 0){
-        for (let i = 0; i < samples; ++i) {
-            const x = (i * 2) / samples - 1;
-            curve[i] = Math.sin(Math.PI * amount * x) * 0.75; // Experiment with this expression
-        }
-    }
-    else{
-        
-    }
-
-    return curve;
-}
-
-
 const Nodo_Ganho = audioContext.createGain(); //Nodo de controle de ganho
 const Nodo_Distortion = audioContext.createWaveShaper(); //Nodo de distorção não linear
 const Nodo_Filtro = audioContext.createBiquadFilter(); //Nodo de filtro
@@ -57,7 +39,8 @@ const canvasCtx = canvas.getContext("2d");
 
 
 const volumeControl = document.querySelector("input[name='volume']");
-const DistortionControl = document.querySelector("input[name='distInput']");
+const DistortionFreqControl = document.querySelector("input[name='distFreqInput']");
+const DistortionOndaControl = document.querySelector("select[name='distOndaInput']");
 const oitavaInput = document.getElementById("oitavaInput");
 
 let frameCount = 0;
@@ -128,12 +111,14 @@ function draw() {
 let noteFreq = [{}];
 
 const wavePicker = document.querySelector("select[name='waveform']");
+const distWavePicker = document.querySelector("select[name=distOndaInput");
 const customWaveform = audioContext.createPeriodicWave([0, 0.5, 0.2, 0.1], [0, 0, 0, 0] );
 
 
 function setup() {
     volumeControl.addEventListener("change", changeVolume, false);
-    DistortionControl.addEventListener("change", changeDistortion, false);
+    DistortionFreqControl.addEventListener("change", changeDistortion, false);
+    DistortionOndaControl.addEventListener("change", changeDistortion, false);
 
     for (let i = 0; i < 9; i++){ //gera as notas
             noteFreq[i] = {
@@ -165,9 +150,9 @@ function changeVolume(event) {
 
 
 function changeDistortion(event) {
-    const distortionValue = parseFloat(DistortionControl.value) | 0 ;
+    const distortionValue = parseFloat(DistortionFreqControl.value) | 0 ;
     if(distortionValue > 0){
-        Nodo_Distortion.curve = makeDistortionCurve(DistortionControl.value);
+        Nodo_Distortion.curve = makeDistortionCurve(DistortionFreqControl.value);
         Nodo_Distortion.oversample = '4x';
     }
     else {
